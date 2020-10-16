@@ -1,10 +1,9 @@
 import React from "react";
-import MapContainer from "./components/MapContainer";
-
+import GameController from "./components/GameController";
 export default function App() {
   return (
     <div>
-      <MapContainer />
+      <GameController />
     </div>
   );
 }
