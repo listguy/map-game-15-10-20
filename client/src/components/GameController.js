@@ -9,9 +9,11 @@ export default function GameController() {
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [isBreak, setBreak] = useState(false);
+  const [leaderBoard, setLeaderBoard] = useState([]);
 
   useEffect(() => {
     newGame();
+    fetchScores();
   }, []);
 
   const newGame = () => {
@@ -76,9 +78,29 @@ export default function GameController() {
       userPick.lng
     );
     console.log(distance);
-    setScore((curr) => Math.floor(curr + Math.max(0, 100 - distance * 5)));
+    setScore((curr) => Math.floor(curr + Math.max(0, 100 - distance * 2)));
   };
 
+  const fetchScores = async () => {
+    fetch("/api/v1/scores")
+      .then((response) => response.json())
+      .then((scores) => setLeaderBoard(scores));
+  };
+
+  const submitScore = async (name) => {
+    const response = await fetch("/api/v1/scores", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name: "check", score: score }),
+    });
+    if (response.msg) {
+      alert(response.msg);
+    } else {
+      fetchScores();
+    }
+  };
   return (
     <>
       <h1>Geography Shalosh Yehidot Finals</h1>
@@ -101,6 +123,7 @@ export default function GameController() {
       />
       <h2>Current score: {score}</h2>
       <button onClick={newGame}>New Game</button>
+      {level === 6 && <button onClick={submitScore}>post score</button>}
     </>
   );
 }
