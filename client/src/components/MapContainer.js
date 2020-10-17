@@ -30,11 +30,11 @@ export default function MapContainer({
   const gameMap = useRef();
 
   const mapContainerStyles = {
-    width: "30vw",
-    height: "80vh",
+    width: "98.8vw",
+    height: "100vh",
   };
 
-  const center = { lat: 32.2, lng: 34.91737 };
+  const center = { lat: 31.5, lng: 36.5 };
 
   const makeMove = (e) => {
     setBreak(true);
@@ -111,6 +111,7 @@ export default function MapContainer({
           zoom={7}
           center={center}
           options={{
+            disableDefaultUI: true,
             styles: mapStyles, //removes locations name
             streetViewControl: false,
             fullscreenControl: false,

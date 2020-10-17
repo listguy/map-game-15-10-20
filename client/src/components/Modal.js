@@ -23,17 +23,19 @@ const ModalFooter = styled.div`
 `;
 
 const ModalButton = styled.div`
-  background-color: rgba(230, 25, 25, 0.8);
+  background-color: rgb(250, 100, 120);
   border: none;
   cursor: pointer;
   font-weight: bold;
   outline: none;
   margin: 0 1vh;
   padding: 10px;
+  font-family: "Chilanka", cursive;
+  font-family: "Quicksand", sans-serif;
   border-radius: 10px;
   width: fit-content;
   &:hover {
-    filter: brightness(1.4);
+    color: rgb(10, 10, 10);
   }
 `;
 
@@ -59,7 +61,9 @@ export default function Modal({
     border-radius: 15px;
     box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2), 0 7px 20px 0 rgba(0, 0, 0, 0.17);
     transform: ${show ? "translateY(0vh)" : "translateY(-100vh)"};
-    opacity: ${show ? "1" : "0"};
+    display: ${show ? "block" : "none"};
+    font-family: "Chilanka", cursive;
+    font-family: "Quicksand", sans-serif;
     transform: translate(-50%, -50%);
     transition: all 0.8s;
     width: 30vw;
@@ -77,7 +81,7 @@ export default function Modal({
         <ModalButton onClick={onClose}>CLOSE</ModalButton>
         {actionInfo.action && (
           <ModalButton
-            style={{ backgroundColor: "rgba(25, 230, 25, 0.5)" }}
+            style={{ backgroundColor: "rgba(70, 240, 90, 0.5)" }}
             onClick={actionInfo.action}
           >
             {actionInfo.text}

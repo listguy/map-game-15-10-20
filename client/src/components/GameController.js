@@ -17,13 +17,61 @@ const FadedBackground = styled.div`
   z-index: 2;
 `;
 
+const InfoBox = styled.div`
+  background: linear-gradient(
+    90deg,
+    rgba(25, 25, 25, 1) 0%,
+    rgba(69, 71, 73, 1) 73%
+  );
+  position: absolute;
+  width: 35vw;
+  height: 40vh;
+  top: 10vh;
+  left: 50vw;
+  padding: 10px 20px;
+  font-family: "Chilanka", cursive;
+  font-family: "Quicksand", sans-serif;
+  line-height: 2.5em;
+  color: rgb(250, 100, 120);
+  border-radius: 10px;
+  z-index: 1;
+`;
+
+const Row = styled.div`
+  font-size: 1.5em;
+`;
+
+const MiniTitles = styled.span`
+  font-weight: 900;
+`;
+
+const Button = styled.button`
+  background-color: rgb(230, 250, 245);
+  position: absolute;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  outline: none;
+  bottom: 20px;
+  padding: 10px;
+  border-radius: 10px;
+  width: fit-content;
+  font-family: "Chilanka", cursive;
+  font-family: "Quicksand", sans-serif;
+  color: rgb(250, 100, 120);
+  &:hover {
+    filter: brightness(1.25);
+    transition: 0.5s;
+  }
+`;
+
 export default function GameController() {
   const [currObjective, setcurrObjective] = useState({ MGLSDE_L_4: "" });
   const [userPick, setUserPick] = useState(null);
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [isBreak, setBreak] = useState(false);
-  const [showModal, setShowModal] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const [leaderBoard, setLeaderBoard] = useState([]);
 
   useEffect(() => {
@@ -71,7 +119,9 @@ export default function GameController() {
 
     //Stop game from progressing after reaching level 5
     if (level === 5) {
-      openModal();
+      setTimeout(() => {
+        openModal();
+      }, 2000);
       return;
     }
 
@@ -142,20 +192,32 @@ export default function GameController() {
           header: "Game Over",
           body: `You scored ${score} points.`,
           elements: (
-            <input type="text" placeholder="Your name" ref={nameInput} />
+            <input
+              type="text"
+              placeholder="Your name"
+              ref={nameInput}
+              maxLength="18"
+            />
           ),
         }}
         actionInfo={{ text: "SUBMIT", action: submitScore }}
       />
-      <h1>Geography Shalosh Yehidot Finals</h1>
-      <h3>{`Level ${level}`}</h3>
-      <h2>
-        Find:{" "}
-        {`${currObjective.MGLSDE_L_4.slice(
-          0,
-          1
-        )}${currObjective.MGLSDE_L_4.slice(1).toLowerCase()}`}
-      </h2>
+      <InfoBox>
+        <h1>Geography Shalosh Yehidot Finals</h1>
+        <h3>{`Level ${level}`}</h3>
+        <Row>
+          <MiniTitles>Find:</MiniTitles>{" "}
+          {`${currObjective.MGLSDE_L_4.slice(
+            0,
+            1
+          )}${currObjective.MGLSDE_L_4.slice(1).toLowerCase()}`}
+        </Row>
+        <Row>
+          <MiniTitles>Current score:</MiniTitles>
+          {" " + score}
+        </Row>
+        <Button onClick={newGame}>New Game</Button>
+      </InfoBox>
       <MapContainer
         currObjective={currObjective}
         userPick={userPick}
@@ -165,8 +227,7 @@ export default function GameController() {
         setBreak={setBreak}
         pinMarker={pinMarker}
       />
-      <h2>Current score: {score}</h2>
-      <button onClick={newGame}>New Game</button>
+      <h1>LEADERS BOARD:</h1>
       <LeaderBoard scores={leaderBoard} />
     </>
   );
