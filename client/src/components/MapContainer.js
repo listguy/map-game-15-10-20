@@ -26,13 +26,15 @@ export default function MapContainer({
   // const [score, setScore] = useState(0);
   // const [level, setLevel] = useState(1);
   // const [isBreak, setBreak] = useState(false);
-  const [center, setCenter] = useState({ lat: 32.24995, lng: 34.91737 });
+  // const [center, setCenter] = useState({ lat: 32.2, lng: 34.91737 });
   const gameMap = useRef();
 
   const mapContainerStyles = {
-    width: "40vw",
+    width: "30vw",
     height: "80vh",
   };
+
+  const center = { lat: 32.2, lng: 34.91737 };
 
   const makeMove = (e) => {
     setBreak(true);
@@ -42,7 +44,7 @@ export default function MapContainer({
       lng: latLng.lng,
     };
     pinMarker(location);
-    setCenter(currObjective.location);
+    // setCenter(currObjective.location);
   };
 
   // const newGame = () => {
@@ -112,7 +114,7 @@ export default function MapContainer({
             styles: mapStyles, //removes locations name
             streetViewControl: false,
             fullscreenControl: false,
-            gestureHandling: "greedy",
+            gestureHandling: "none",
           }}
           onClick={makeMove}
           ref={gameMap}

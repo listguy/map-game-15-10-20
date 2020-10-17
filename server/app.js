@@ -7,7 +7,7 @@ app.use(express.json());
 
 app.get("/api/v1/scores", async (req, res) => {
   const scores = await fs.readFile("./scores.json");
-  res.json(scores);
+  res.json(JSON.parse(scores));
 });
 
 app.post("/api/v1/scores", async (req, res) => {

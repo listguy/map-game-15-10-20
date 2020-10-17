@@ -1,7 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import MapContainer from "./MapContainer";
+import LeaderBoard from "./LeaderBoard";
+import Modal from "./Modal";
 import objectives from "./objectives.json";
+import styled from "styled-components";
 const randomObjectives = [];
+
+//styled components
+const FadedBackground = styled.div`
+  background-color: rgba(48, 49, 48, 0.82);
+  position: fixed;
+  top: 0;
+  height: 100%;
+  transition: all 1.3s;
+  width: 100%;
+  z-index: 2;
+`;
 
 export default function GameController() {
   const [currObjective, setcurrObjective] = useState({ MGLSDE_L_4: "" });
@@ -9,12 +23,15 @@ export default function GameController() {
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [isBreak, setBreak] = useState(false);
+  const [showModal, setShowModal] = useState(true);
   const [leaderBoard, setLeaderBoard] = useState([]);
 
   useEffect(() => {
     newGame();
     fetchScores();
   }, []);
+
+  const nameInput = useRef();
 
   const newGame = () => {
     let i = 0;
@@ -54,7 +71,7 @@ export default function GameController() {
 
     //Stop game from progressing after reaching level 5
     if (level === 5) {
-      setLevel(6);
+      openModal();
       return;
     }
 
@@ -87,24 +104,51 @@ export default function GameController() {
       .then((scores) => setLeaderBoard(scores));
   };
 
-  const submitScore = async (name) => {
+  const submitScore = async () => {
+    if (!nameInput.current.value) return;
     const response = await fetch("/api/v1/scores", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name: "check", score: score }),
+      body: JSON.stringify({ name: nameInput.current.value, score: score }),
     });
     if (response.msg) {
       alert(response.msg);
     } else {
+      closeModal();
       fetchScores();
     }
   };
+
+  const closeModal = () => {
+    setShowModal(false);
+    newGame();
+  };
+
+  const openModal = () => {
+    setShowModal(true);
+  };
+
   return (
     <>
+      {showModal ? (
+        <FadedBackground onClick={closeModal}></FadedBackground>
+      ) : null}
+      <Modal
+        onClose={closeModal}
+        show={showModal}
+        content={{
+          header: "Game Over",
+          body: `You scored ${score} points.`,
+          elements: (
+            <input type="text" placeholder="Your name" ref={nameInput} />
+          ),
+        }}
+        actionInfo={{ text: "SUBMIT", action: submitScore }}
+      />
       <h1>Geography Shalosh Yehidot Finals</h1>
-      <h3>{level < 6 ? `Level ${level}` : `Game Over`}</h3>
+      <h3>{`Level ${level}`}</h3>
       <h2>
         Find:{" "}
         {`${currObjective.MGLSDE_L_4.slice(
@@ -123,7 +167,7 @@ export default function GameController() {
       />
       <h2>Current score: {score}</h2>
       <button onClick={newGame}>New Game</button>
-      {level === 6 && <button onClick={submitScore}>post score</button>}
+      <LeaderBoard scores={leaderBoard} />
     </>
   );
 }
