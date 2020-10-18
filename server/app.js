@@ -5,9 +5,15 @@ const PORT = 3001;
 
 app.use(express.json());
 
+//Sends scores in groups of 40, starting from offset
 app.get("/api/v1/scores", async (req, res) => {
-  const scores = await fs.readFile("./scores.json");
-  res.json(JSON.parse(scores));
+  const { offset } = req.query;
+  const buffer = await fs.readFile("./scores.json");
+  const scores = JSON.parse(buffer);
+  res.json({
+    scores: scores.slice(offset * 40, (offset + 1) * 40 + 1),
+    pages: Math.floor(scores.length / 40) + 1,
+  });
 });
 
 app.post("/api/v1/scores", async (req, res) => {

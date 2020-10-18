@@ -2,8 +2,8 @@ body {
   margin: 0;
   background: linear-gradient(
     90deg,
-    rgba(25, 25, 25, 1) 0%,
-    rgba(69, 71, 73, 1) 73%
+    rgba(10, 10, 10, 1) 0%,
+    rgba(30, 30, 35, 1) 73%
   );
   font-family: "Chilanka", cursive;
   font-family: "Quicksand", sans-serif;

@@ -3,15 +3,14 @@ import styled from "styled-components";
 //styled components
 const Wrapper = styled.div`
   width: 20vw;
-  color: rgb(250, 100, 120);
+  color: rgb(250, 230, 220);
   font-family: "Chilanka", cursive;
   font-family: "Quicksand", sans-serif;
   line-height: 1.4em;
-  margin: 20px 2vw 0;
 
   hr {
     width: 20vw;
-    color: rgb(250, 100, 120);
+    border: 0.5px solid rgb(250, 100, 120);
   }
 `;
 
@@ -38,7 +37,7 @@ const NameCell = styled.span`
 
 const ScoreCell = RankCell;
 
-export default function LeaderBoard({ scores }) {
+export default function LeaderBoard({ scores, prefix, pageNumber }) {
   return (
     <Wrapper>
       <BoardHeader>
@@ -50,9 +49,15 @@ export default function LeaderBoard({ scores }) {
       {scores.map((scoreObj, i) => (
         <>
           <BoardRow key={`row${i}`}>
-            <RankCell key={`rank${i}`}>{i + 1}</RankCell>
-            <NameCell key={`name${i}`}>{scoreObj.name}</NameCell>
-            <ScoreCell key={`score${i}`}>{scoreObj.score}</ScoreCell>
+            <RankCell key={`rank${i}`}>
+              {pageNumber * 40 + prefix * 10 + i + 1}
+            </RankCell>
+            <NameCell key={`name${i}`}>
+              {scoreObj.name ? scoreObj.name : "------"}
+            </NameCell>
+            <ScoreCell key={`score${i}`}>
+              {scoreObj.score ? scoreObj.score : "---"}
+            </ScoreCell>
           </BoardRow>
           <hr />
         </>

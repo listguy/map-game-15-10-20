@@ -2,8 +2,17 @@ import React, { useState, useEffect, useRef } from "react";
 import MapContainer from "./MapContainer";
 import LeaderBoard from "./LeaderBoard";
 import Modal from "./Modal";
+import LoadingAnimation from "./LoadingAnimation";
 import objectives from "./objectives.json";
 import styled from "styled-components";
+import { VscLoading } from "react-icons/vsc";
+import { FaGlobeAmericas } from "react-icons/fa";
+import {
+  BiChevronRight,
+  BiChevronLeft,
+  BiChevronsRight,
+  BiChevronsLeft,
+} from "react-icons/bi";
 const randomObjectives = [];
 
 //styled components
@@ -20,11 +29,11 @@ const FadedBackground = styled.div`
 const InfoBox = styled.div`
   background: linear-gradient(
     90deg,
-    rgba(25, 25, 25, 1) 0%,
-    rgba(69, 71, 73, 1) 73%
+    rgba(10, 10, 10, 1) 0%,
+    rgba(30, 30, 35, 1) 73%
   );
   position: absolute;
-  width: 35vw;
+  width: 38vw;
   height: 40vh;
   top: 10vh;
   left: 50vw;
@@ -33,6 +42,7 @@ const InfoBox = styled.div`
   font-family: "Quicksand", sans-serif;
   line-height: 2.5em;
   color: rgb(250, 100, 120);
+  box-shadow: 0px 0px 50px 1px rgba(250, 100, 120, 0.7);
   border-radius: 10px;
   z-index: 1;
 `;
@@ -65,6 +75,23 @@ const Button = styled.button`
   }
 `;
 
+const LeaderBoardsSection = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-column-gap: 2vh;
+  width: 90vw;
+  margin: 20px auto;
+`;
+
+const ButtonStyle = styled.span`
+  .arrow {
+    font-size: 1.2em;
+    cursor: pointer;
+    &:hover {
+      filter: brightness(1.75);
+    }
+  }
+`;
 export default function GameController() {
   const [currObjective, setcurrObjective] = useState({ MGLSDE_L_4: "" });
   const [userPick, setUserPick] = useState(null);
@@ -73,6 +100,8 @@ export default function GameController() {
   const [isBreak, setBreak] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [leaderBoard, setLeaderBoard] = useState([]);
+  const [leaderBoardStep, setLeaderBoardStep] = useState(0);
+  const [LeaderBoardPages, setLeaderBoardPages] = useState(1);
 
   useEffect(() => {
     newGame();
@@ -149,9 +178,12 @@ export default function GameController() {
   };
 
   const fetchScores = async () => {
-    fetch("/api/v1/scores")
+    fetch(`/api/v1/scores?offset=${leaderBoardStep}`)
       .then((response) => response.json())
-      .then((scores) => setLeaderBoard(scores));
+      .then((scoresObj) => {
+        setLeaderBoard(scoresObj.scores);
+        setLeaderBoardPages(scoresObj.pages);
+      });
   };
 
   const submitScore = async () => {
@@ -180,6 +212,17 @@ export default function GameController() {
     setShowModal(true);
   };
 
+  useEffect(() => {
+    fetchScores(leaderBoardStep);
+    console.log("fetch");
+  }, [leaderBoardStep]);
+
+  const changeLBStep = (step) => {
+    step = Math.max(0, Math.min(leaderBoardStep + step, LeaderBoardPages - 1));
+    console.log(step);
+    setLeaderBoardStep(step);
+  };
+
   return (
     <>
       {showModal ? (
@@ -203,7 +246,10 @@ export default function GameController() {
         actionInfo={{ text: "SUBMIT", action: submitScore }}
       />
       <InfoBox>
-        <h1>Geography Shalosh Yehidot Finals</h1>
+        <h1>
+          <FaGlobeAmericas style={{ fontSize: "1.5em", paddingRight: "1vw" }} />
+          Geography Shalosh Yehidot Finals{" "}
+        </h1>
         <h3>{`Level ${level}`}</h3>
         <Row>
           <MiniTitles>Find:</MiniTitles>{" "}
@@ -227,8 +273,53 @@ export default function GameController() {
         setBreak={setBreak}
         pinMarker={pinMarker}
       />
-      <h1>LEADERS BOARD:</h1>
-      <LeaderBoard scores={leaderBoard} />
+      <h1 style={{ textAlign: "center", textDecoration: "underline" }}>
+        LEADERS BOARD
+      </h1>
+      <div
+        style={{
+          display: "flex",
+          alignContent: "center",
+          marginLeft: "10px",
+          fontSize: "1.2em",
+          lineHeight: "1.2em",
+          color: "rgb(250, 100, 120)",
+        }}
+      >
+        <span style={{ marginRight: "10px" }}>
+          Page {leaderBoardStep + 1} of {LeaderBoardPages}
+        </span>
+        <ButtonStyle>
+          <BiChevronsLeft className="arrow" onClick={() => changeLBStep(-5)} />{" "}
+          <BiChevronLeft className="arrow" onClick={() => changeLBStep(-1)} />{" "}
+          <BiChevronRight className="arrow" onClick={() => changeLBStep(1)} />
+          <BiChevronsRight className="arrow" onClick={() => changeLBStep(5)} />
+        </ButtonStyle>
+      </div>
+      {leaderBoard[0] ? (
+        <LeaderBoardsSection>
+          {[0, 1, 2, 3].map((index) => {
+            let sliceOfBoard = leaderBoard.slice(index * 10, (index + 1) * 10);
+            if (sliceOfBoard.length < 10) {
+              let filledSlice = new Array(10);
+              filledSlice
+                .fill({})
+                .splice(0, sliceOfBoard.length, ...sliceOfBoard);
+              sliceOfBoard = filledSlice;
+            }
+
+            return (
+              <LeaderBoard
+                scores={sliceOfBoard}
+                prefix={index}
+                pageNumber={leaderBoardStep}
+              />
+            );
+          })}
+        </LeaderBoardsSection>
+      ) : (
+        <LoadingAnimation symbol={<VscLoading />} />
+      )}
     </>
   );
 }
