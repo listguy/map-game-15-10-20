@@ -1,9 +1,15 @@
 const express = require("express");
 const fs = require("fs").promises;
 const app = new express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
+const path = require("path");
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "../client", "build")));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client", "build", "index.html"));
+});
 
 //Sends scores in groups of 40, starting from offset
 app.get("/api/v1/scores", async (req, res) => {

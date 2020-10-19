@@ -1,22 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  GoogleMap,
-  LoadScript,
-  Marker,
-  InfoWindow,
-} from "@react-google-maps/api";
+import React, { useRef } from "react";
+import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
 import mapStyles from "./mapStyles.json";
 // import objectives from "./objectives.json";
 import greenPin from "../images/green-pointer.png";
-
-const randomObjectives = [];
+const { REACT_APP_GOOGLE_API_KEY } = process.env;
 
 export default function MapContainer({
   currObjective,
   userPick,
-  setUserPick,
-  setScore,
   isBreak,
   setBreak,
   pinMarker,
