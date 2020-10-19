@@ -214,7 +214,6 @@ export default function GameController() {
 
   useEffect(() => {
     fetchScores(leaderBoardStep);
-    console.log("fetch");
   }, [leaderBoardStep]);
 
   const changeLBStep = (step) => {
