@@ -130,18 +130,10 @@ export default function GameController() {
   const pinMarker = (location) => {
     if (isBreak) return;
 
-    // setBreak(true);
-    // const latLng = e.latLng.toJSON();
-    // const location = {
-    //   lat: latLng.lat,
-    //   lng: latLng.lng,
-    // };
     setUserPick({
       name: "Your pick",
       location: location,
     });
-    // console.log(gameMap);
-    // setCenter(currObjective.location);
 
     //calculate points
     calculatePoints(currObjective.location, location);
