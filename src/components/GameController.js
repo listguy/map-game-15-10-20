@@ -149,7 +149,8 @@ export default function GameController() {
     //Stop game from progressing after reaching level 5
     if (level === 5) {
       setTimeout(() => {
-        openModal();
+        if (score > 0) openModal();
+        else newGame();
       }, 2000);
       return;
     }
@@ -188,6 +189,7 @@ export default function GameController() {
 
   const submitScore = async () => {
     if (!nameInput.current.value) return;
+    closeModal();
     const response = await fetch("/api/v1/scores", {
       method: "POST",
       headers: {
@@ -198,7 +200,6 @@ export default function GameController() {
     if (response.msg) {
       alert(response.msg);
     } else {
-      closeModal();
       fetchScores();
     }
   };
