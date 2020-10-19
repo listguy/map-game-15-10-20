@@ -105,7 +105,7 @@ export default function MapContainer({
 
   return (
     <>
-      <LoadScript googleMapsApiKey="AIzaSyD8BcFBnjsUlLZdKroEw5_FGz22bUWIXTE">
+      <LoadScript googleMapsApiKey={REACT_APP_GOOGLE_API_KEY}>
         <GoogleMap
           mapContainerStyle={mapContainerStyles}
           zoom={7}
