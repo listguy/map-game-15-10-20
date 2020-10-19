@@ -98,7 +98,7 @@ export default function GameController() {
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [isBreak, setBreak] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(0);
   const [leaderBoard, setLeaderBoard] = useState([]);
   const [leaderBoardStep, setLeaderBoardStep] = useState(0);
   const [LeaderBoardPages, setLeaderBoardPages] = useState(1);
@@ -149,8 +149,7 @@ export default function GameController() {
     //Stop game from progressing after reaching level 5
     if (level === 5) {
       setTimeout(() => {
-        if (score > 0) openModal();
-        else newGame();
+        openModal();
       }, 2000);
       return;
     }
@@ -231,19 +230,26 @@ export default function GameController() {
       <Modal
         onClose={closeModal}
         show={showModal}
-        content={{
-          header: "Game Over",
-          body: `You scored ${score} points.`,
-          elements: (
-            <input
-              type="text"
-              placeholder="Your name"
-              ref={nameInput}
-              maxLength="18"
-            />
-          ),
-        }}
-        actionInfo={{ text: "SUBMIT", action: submitScore }}
+        content={
+          score > 0
+            ? {
+                header: "Game Over",
+                body: `You scored ${score} points.`,
+                elements: (
+                  <input
+                    type="text"
+                    placeholder="Your name"
+                    ref={nameInput}
+                    maxLength="15"
+                  />
+                ),
+              }
+            : {
+                header: "Game Over",
+                body: `You scored ${score} points.`,
+              }
+        }
+        actionInfo={score > 0 ? { text: "SUBMIT", action: submitScore } : {}}
       />
       <InfoBox>
         <h1>
