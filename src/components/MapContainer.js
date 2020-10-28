@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
 import mapStyles from "./mapStyles.json";
@@ -12,8 +12,6 @@ export default function MapContainer({
   setBreak,
   pinMarker,
 }) {
-  const gameMap = useRef();
-
   const mapContainerStyles = {
     width: "98.8vw",
     height: "100vh",
@@ -36,17 +34,16 @@ export default function MapContainer({
       <LoadScript googleMapsApiKey={REACT_APP_GOOGLE_API_KEY}>
         <GoogleMap
           mapContainerStyle={mapContainerStyles}
-          zoom={7.5}
+          zoom={8}
           center={center}
           options={{
             disableDefaultUI: true,
             styles: mapStyles, //removes locations name
             streetViewControl: false,
             fullscreenControl: false,
-            gestureHandling: "none",
+            gestureHandling: "cooperative",
           }}
           onClick={makeMove}
-          ref={gameMap}
         >
           {userPick && <Marker key={"user"} position={userPick.location} />}
           {isBreak && (
