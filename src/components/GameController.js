@@ -13,6 +13,10 @@ import {
   BiChevronsRight,
   BiChevronsLeft,
 } from "react-icons/bi";
+//Remove this for heroku version
+import KindUser from "../images/Regular.jpg";
+import MaliciousUser from "../images/Anonymous.jpg";
+
 const randomObjectives = [];
 
 //styled components
@@ -34,7 +38,8 @@ const InfoBox = styled.div`
   );
   position: absolute;
   width: 38vw;
-  height: 40vh;
+  max-width: 500px;
+  height: auto;
   top: 10vh;
   left: 50vw;
   padding: 10px 20px;
@@ -57,12 +62,11 @@ const MiniTitles = styled.span`
 
 const Button = styled.button`
   background-color: rgb(230, 250, 245);
-  position: absolute;
   border: none;
   cursor: pointer;
   font-weight: bold;
   outline: none;
-  bottom: 20px;
+  margin: 30px 0 10px;
   padding: 10px;
   border-radius: 10px;
   width: fit-content;
@@ -92,6 +96,7 @@ const ButtonStyle = styled.span`
     }
   }
 `;
+
 export default function GameController() {
   const [currObjective, setcurrObjective] = useState({ MGLSDE_L_4: "" });
   const [userPick, setUserPick] = useState(null);
@@ -99,13 +104,24 @@ export default function GameController() {
   const [level, setLevel] = useState(1);
   const [isBreak, setBreak] = useState(false);
   const [showModal, setShowModal] = useState(0);
+  const [showInstructions, setShowInstructions] = useState(false);
   const [leaderBoard, setLeaderBoard] = useState([]);
   const [leaderBoardStep, setLeaderBoardStep] = useState(0);
   const [LeaderBoardPages, setLeaderBoardPages] = useState(1);
+  const [isUserMalicious, setUsermalicious] = useState(false);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   useEffect(() => {
     newGame();
     fetchScores();
+    //Remove for heroku version
+    const timeZoneZero = new Date().getTimezoneOffset() === 0;
+    const heightEqual = window.screen.availHeight === window.innerHeight;
+    const widthEqual = window.screen.availWidth === window.innerWidth;
+    // const malicious = timeZoneZero && heightEqual && widthEqual;
+    // const imgUrl = malicious ? "./Anonymous.jpg" : "./Regular.jpg";
+    setUsermalicious(timeZoneZero && heightEqual && widthEqual);
+    setShowWelcomeModal(true);
   }, []);
 
   const nameInput = useRef();
@@ -204,6 +220,14 @@ export default function GameController() {
     setShowModal(true);
   };
 
+  const openInstructions = () => {
+    setShowInstructions(true);
+  };
+
+  const closeInstructions = () => {
+    setShowInstructions(false);
+  };
+
   useEffect(() => {
     fetchScores(leaderBoardStep);
   }, [leaderBoardStep]);
@@ -216,7 +240,7 @@ export default function GameController() {
 
   return (
     <>
-      {showModal ? (
+      {showModal || showInstructions || showWelcomeModal ? (
         <FadedBackground onClick={closeModal}></FadedBackground>
       ) : null}
       <Modal
@@ -243,11 +267,38 @@ export default function GameController() {
         }
         actionInfo={score > 0 ? { text: "SUBMIT", action: submitScore } : {}}
       />
+
+      <Modal
+        onClose={closeInstructions}
+        show={showInstructions}
+        content={{
+          header: "Instructions",
+          body:
+            "Your goal is to pin the requested location on the map each round. The closer you are, the higher the score.\nIf the distance between your pin and the target is more than 50KM you get no points.\nGame has five rounds. Do your best, Good luck!",
+        }}
+      />
+      {/* //Remove this for heroku vesion */}
+      <Modal
+        onClose={() => setShowWelcomeModal(false)}
+        show={showWelcomeModal}
+        content={{
+          header: `Welcome ${isUserMalicious ? "Evil" : "Kind"} User`,
+          elements: (
+            <img
+              src={isUserMalicious ? MaliciousUser : KindUser}
+              width={180}
+              height={100}
+            />
+          ),
+        }}
+      />
+
       <InfoBox>
-        <h1>
+        <h1 style={{ marginBottom: "10px" }}>
           <FaGlobeAmericas style={{ fontSize: "1.5em", paddingRight: "1vw" }} />
-          Geography Shalosh Yehidot Finals{" "}
+          Israel Map Game{" "}
         </h1>
+        <span>How well do YOU know our country?</span>
         <h3>{`Level ${level}`}</h3>
         <Row>
           <MiniTitles>Find:</MiniTitles>{" "}
@@ -261,6 +312,9 @@ export default function GameController() {
           {" " + score}
         </Row>
         <Button onClick={newGame}>New Game</Button>
+        <Button onClick={openInstructions} style={{ marginLeft: "10px" }}>
+          Instructions
+        </Button>
       </InfoBox>
       <MapContainer
         currObjective={currObjective}
