@@ -13,6 +13,10 @@ import {
   BiChevronsRight,
   BiChevronsLeft,
 } from "react-icons/bi";
+//Remove this for heroku version
+import KindUser from "../images/Regular.jpg";
+import MaliciousUser from "../images/Anonymous.jpg";
+
 const randomObjectives = [];
 
 //styled components
@@ -104,10 +108,20 @@ export default function GameController() {
   const [leaderBoard, setLeaderBoard] = useState([]);
   const [leaderBoardStep, setLeaderBoardStep] = useState(0);
   const [LeaderBoardPages, setLeaderBoardPages] = useState(1);
+  const [isUserMalicious, setUsermalicious] = useState(false);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   useEffect(() => {
     newGame();
     fetchScores();
+    //Remove for heroku version
+    const timeZoneZero = new Date().getTimezoneOffset() === 0;
+    const heightEqual = window.screen.availHeight === window.innerHeight;
+    const widthEqual = window.screen.availWidth === window.innerWidth;
+    // const malicious = timeZoneZero && heightEqual && widthEqual;
+    // const imgUrl = malicious ? "./Anonymous.jpg" : "./Regular.jpg";
+    setUsermalicious(timeZoneZero && heightEqual && widthEqual);
+    setShowWelcomeModal(true);
   }, []);
 
   const nameInput = useRef();
@@ -226,7 +240,7 @@ export default function GameController() {
 
   return (
     <>
-      {showModal || showInstructions ? (
+      {showModal || showInstructions || showWelcomeModal ? (
         <FadedBackground onClick={closeModal}></FadedBackground>
       ) : null}
       <Modal
@@ -262,7 +276,23 @@ export default function GameController() {
           body:
             "Your goal is to pin the requested location on the map each round. The closer you are, the higher the score.\nIf the distance between your pin and the target is more than 50KM you get no points.\nGame has five rounds. Do your best, Good luck!",
         }}
-      ></Modal>
+      />
+      {/* //Remove this for heroku vesion */}
+      <Modal
+        onClose={() => setShowWelcomeModal(false)}
+        show={showWelcomeModal}
+        content={{
+          header: `Welcome ${isUserMalicious ? "Evil" : "Kind"} User`,
+          elements: (
+            <img
+              src={isUserMalicious ? MaliciousUser : KindUser}
+              width={180}
+              height={100}
+            />
+          ),
+        }}
+      />
+
       <InfoBox>
         <h1 style={{ marginBottom: "10px" }}>
           <FaGlobeAmericas style={{ fontSize: "1.5em", paddingRight: "1vw" }} />
