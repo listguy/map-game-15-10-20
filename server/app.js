@@ -13,8 +13,6 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "build", "index.html"));
 });
 
-//When work on server is finished, remove proxy from package json, build and check and then deploy to heroku
-
 app.get("/api/v1/scores", async (req, res) => {
   const offset = parseInt(req.query.offset) || 0;
 

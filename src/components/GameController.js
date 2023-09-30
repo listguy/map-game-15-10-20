@@ -7,12 +7,7 @@ import objectives from "./objectives.json";
 import styled from "styled-components";
 import { VscLoading } from "react-icons/vsc";
 import { FaGlobeAmericas } from "react-icons/fa";
-import {
-  BiChevronRight,
-  BiChevronLeft,
-  BiChevronsRight,
-  BiChevronsLeft,
-} from "react-icons/bi";
+import { BiChevronRight, BiChevronLeft, BiChevronsRight, BiChevronsLeft } from "react-icons/bi";
 //Remove this for heroku version
 import KindUser from "../images/Regular.jpg";
 import MaliciousUser from "../images/Anonymous.jpg";
@@ -31,11 +26,7 @@ const FadedBackground = styled.div`
 `;
 
 const InfoBox = styled.div`
-  background: linear-gradient(
-    90deg,
-    rgba(10, 10, 10, 1) 0%,
-    rgba(30, 30, 35, 1) 73%
-  );
+  background: linear-gradient(90deg, rgba(10, 10, 10, 1) 0%, rgba(30, 30, 35, 1) 73%);
   position: absolute;
   width: 38vw;
   max-width: 500px;
@@ -129,8 +120,7 @@ export default function GameController() {
   const newGame = () => {
     let i = 0;
     while (i < 5) {
-      let newObjective =
-        objectives[Math.floor(Math.random() * objectives.length)];
+      let newObjective = objectives[Math.floor(Math.random() * objectives.length)];
 
       if (!newObjective.MGLSDE_L_4) continue;
       randomObjectives[i] = newObjective;
@@ -173,15 +163,7 @@ export default function GameController() {
   };
 
   const calculatePoints = (currObjective, userPick) => {
-    console.log(currObjective);
-    console.log(userPick);
-    const distance = getDistanceFromLatLonInKm(
-      currObjective.lat,
-      currObjective.lng,
-      userPick.lat,
-      userPick.lng
-    );
-    console.log(distance);
+    const distance = getDistanceFromLatLonInKm(currObjective.lat, currObjective.lng, userPick.lat, userPick.lng);
     setScore((curr) => Math.floor(curr + Math.max(0, 100 - distance * 2)));
   };
 
@@ -234,7 +216,6 @@ export default function GameController() {
 
   const changeLBStep = (step) => {
     step = Math.max(0, Math.min(leaderBoardStep + step, LeaderBoardPages - 1));
-    console.log(step);
     setLeaderBoardStep(step);
   };
 
@@ -251,14 +232,7 @@ export default function GameController() {
             ? {
                 header: "Game Over",
                 body: `You scored ${score} points.`,
-                elements: (
-                  <input
-                    type="text"
-                    placeholder="Your name"
-                    ref={nameInput}
-                    maxLength="15"
-                  />
-                ),
+                elements: <input type="text" placeholder="Your name" ref={nameInput} maxLength="15" />,
               }
             : {
                 header: "Game Over",
@@ -273,8 +247,7 @@ export default function GameController() {
         show={showInstructions}
         content={{
           header: "Instructions",
-          body:
-            "Your goal is to pin the requested location on the map each round. The closer you are, the higher the score.\nIf the distance between your pin and the target is more than 50KM you get no points.\nGame has five rounds. Do your best, Good luck!",
+          body: "Your goal is to pin the requested location on the map each round. The closer you are, the higher the score.\nIf the distance between your pin and the target is more than 50KM you get no points.\nGame has five rounds. Do your best, Good luck!",
         }}
       />
       {/* //Remove this for heroku vesion */}
@@ -283,13 +256,7 @@ export default function GameController() {
         show={showWelcomeModal}
         content={{
           header: `Welcome ${isUserMalicious ? "Evil" : "Kind"} User`,
-          elements: (
-            <img
-              src={isUserMalicious ? MaliciousUser : KindUser}
-              width={180}
-              height={100}
-            />
-          ),
+          elements: <img src={isUserMalicious ? MaliciousUser : KindUser} width={180} height={100} />,
         }}
       />
 
@@ -302,10 +269,7 @@ export default function GameController() {
         <h3>{`Level ${level}`}</h3>
         <Row>
           <MiniTitles>Find:</MiniTitles>{" "}
-          {`${currObjective.MGLSDE_L_4.slice(
-            0,
-            1
-          )}${currObjective.MGLSDE_L_4.slice(1).toLowerCase()}`}
+          {`${currObjective.MGLSDE_L_4.slice(0, 1)}${currObjective.MGLSDE_L_4.slice(1).toLowerCase()}`}
         </Row>
         <Row>
           <MiniTitles>Current score:</MiniTitles>
@@ -325,9 +289,7 @@ export default function GameController() {
         setBreak={setBreak}
         pinMarker={pinMarker}
       />
-      <h1 style={{ textAlign: "center", textDecoration: "underline" }}>
-        LEADERS BOARD
-      </h1>
+      <h1 style={{ textAlign: "center", textDecoration: "underline" }}>LEADERS BOARD</h1>
       <div
         style={{
           display: "flex",
@@ -354,19 +316,11 @@ export default function GameController() {
             let sliceOfBoard = leaderBoard.slice(index * 10, (index + 1) * 10);
             if (sliceOfBoard.length < 10) {
               let filledSlice = new Array(10);
-              filledSlice
-                .fill({})
-                .splice(0, sliceOfBoard.length, ...sliceOfBoard);
+              filledSlice.fill({}).splice(0, sliceOfBoard.length, ...sliceOfBoard);
               sliceOfBoard = filledSlice;
             }
 
-            return (
-              <LeaderBoard
-                scores={sliceOfBoard}
-                prefix={index}
-                pageNumber={leaderBoardStep}
-              />
-            );
+            return <LeaderBoard scores={sliceOfBoard} prefix={index} pageNumber={leaderBoardStep} />;
           })}
         </LeaderBoardsSection>
       ) : (
@@ -383,10 +337,7 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
   let dLon = deg2rad(lon2 - lon1);
   let a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(deg2rad(lat1)) *
-      Math.cos(deg2rad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
   let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   let d = R * c; // Distance in km
   return d;
