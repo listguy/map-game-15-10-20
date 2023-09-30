@@ -1,42 +1,54 @@
 const express = require("express");
 const fs = require("fs").promises;
+const path = require("path");
+const Score = require("./models/score");
+
 const app = new express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "..", "build")));
 
-//Sends scores in groups of 40, starting from offset
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "build", "index.html"));
+});
+
 app.get("/api/v1/scores", async (req, res) => {
-  const { offset } = req.query;
-  const buffer = await fs.readFile("./scores.json");
-  const scores = JSON.parse(buffer);
-  res.json({
-    scores: scores.slice(offset * 40, (offset + 1) * 40 + 1),
-    pages: Math.floor(scores.length / 40) + 1,
-  });
+  const offset = parseInt(req.query.offset) || 0;
+
+  try {
+    const totalDocs = await Score.countDocuments().exec();
+
+    const scores = await Score.find()
+      .skip(offset * 40)
+      .limit(40)
+      .sort({ score: -1 })
+      .exec();
+
+    res.json({ scores: scores, pages: Math.floor(totalDocs / 40) + 1 });
+  } catch (e) {
+    console.log(`Error occured: ${e}`);
+    res.sendStatus(404);
+  }
 });
 
 app.post("/api/v1/scores", async (req, res) => {
-  const { body: newScore } = req;
-  const json = await fs.readFile("./scores.json");
-  const scores = JSON.parse(json);
-  console.log(scores);
+  const {
+    body: { name, score },
+  } = req;
 
   try {
-    let inserted = false;
-    for (let i in scores) {
-      if (scores[i].score < newScore.score) {
-        scores.splice(i, 0, newScore);
-        inserted = true;
-        break;
-      }
-    }
+    const newScore = new Score({
+      name: name,
+      score: parseInt(score),
+    });
 
-    if (!inserted) scores.push(newScore);
-    await fs.writeFile("./scores.json", JSON.stringify(scores));
-    res.status(204).end();
+    const doc = await newScore.save();
+
+    res.json(doc);
   } catch (e) {
-    res.status(400).json({ msg: "Bad request" });
+    console.log(`Error occured: ${e}`);
+    res.sendStatus(400);
   }
 });
 

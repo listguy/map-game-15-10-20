@@ -7,12 +7,11 @@ import objectives from "./objectives.json";
 import styled from "styled-components";
 import { VscLoading } from "react-icons/vsc";
 import { FaGlobeAmericas } from "react-icons/fa";
-import {
-  BiChevronRight,
-  BiChevronLeft,
-  BiChevronsRight,
-  BiChevronsLeft,
-} from "react-icons/bi";
+import { BiChevronRight, BiChevronLeft, BiChevronsRight, BiChevronsLeft } from "react-icons/bi";
+//Remove this for heroku version
+import KindUser from "../images/Regular.jpg";
+import MaliciousUser from "../images/Anonymous.jpg";
+
 const randomObjectives = [];
 
 //styled components
@@ -27,14 +26,11 @@ const FadedBackground = styled.div`
 `;
 
 const InfoBox = styled.div`
-  background: linear-gradient(
-    90deg,
-    rgba(10, 10, 10, 1) 0%,
-    rgba(30, 30, 35, 1) 73%
-  );
+  background: linear-gradient(90deg, rgba(10, 10, 10, 1) 0%, rgba(30, 30, 35, 1) 73%);
   position: absolute;
   width: 38vw;
-  height: 40vh;
+  max-width: 500px;
+  height: auto;
   top: 10vh;
   left: 50vw;
   padding: 10px 20px;
@@ -57,12 +53,11 @@ const MiniTitles = styled.span`
 
 const Button = styled.button`
   background-color: rgb(230, 250, 245);
-  position: absolute;
   border: none;
   cursor: pointer;
   font-weight: bold;
   outline: none;
-  bottom: 20px;
+  margin: 30px 0 10px;
   padding: 10px;
   border-radius: 10px;
   width: fit-content;
@@ -92,20 +87,32 @@ const ButtonStyle = styled.span`
     }
   }
 `;
+
 export default function GameController() {
   const [currObjective, setcurrObjective] = useState({ MGLSDE_L_4: "" });
   const [userPick, setUserPick] = useState(null);
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [isBreak, setBreak] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(0);
+  const [showInstructions, setShowInstructions] = useState(false);
   const [leaderBoard, setLeaderBoard] = useState([]);
   const [leaderBoardStep, setLeaderBoardStep] = useState(0);
   const [LeaderBoardPages, setLeaderBoardPages] = useState(1);
+  const [isUserMalicious, setUsermalicious] = useState(false);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   useEffect(() => {
     newGame();
     fetchScores();
+    //Remove for heroku version
+    const timeZoneZero = new Date().getTimezoneOffset() === 0;
+    const heightEqual = window.screen.availHeight === window.innerHeight;
+    const widthEqual = window.screen.availWidth === window.innerWidth;
+    // const malicious = timeZoneZero && heightEqual && widthEqual;
+    // const imgUrl = malicious ? "./Anonymous.jpg" : "./Regular.jpg";
+    setUsermalicious(timeZoneZero && heightEqual && widthEqual);
+    setShowWelcomeModal(true);
   }, []);
 
   const nameInput = useRef();
@@ -113,8 +120,7 @@ export default function GameController() {
   const newGame = () => {
     let i = 0;
     while (i < 5) {
-      let newObjective =
-        objectives[Math.floor(Math.random() * objectives.length)];
+      let newObjective = objectives[Math.floor(Math.random() * objectives.length)];
 
       if (!newObjective.MGLSDE_L_4) continue;
       randomObjectives[i] = newObjective;
@@ -130,18 +136,10 @@ export default function GameController() {
   const pinMarker = (location) => {
     if (isBreak) return;
 
-    // setBreak(true);
-    // const latLng = e.latLng.toJSON();
-    // const location = {
-    //   lat: latLng.lat,
-    //   lng: latLng.lng,
-    // };
     setUserPick({
       name: "Your pick",
       location: location,
     });
-    // console.log(gameMap);
-    // setCenter(currObjective.location);
 
     //calculate points
     calculatePoints(currObjective.location, location);
@@ -165,15 +163,7 @@ export default function GameController() {
   };
 
   const calculatePoints = (currObjective, userPick) => {
-    console.log(currObjective);
-    console.log(userPick);
-    const distance = getDistanceFromLatLonInKm(
-      currObjective.lat,
-      currObjective.lng,
-      userPick.lat,
-      userPick.lng
-    );
-    console.log(distance);
+    const distance = getDistanceFromLatLonInKm(currObjective.lat, currObjective.lng, userPick.lat, userPick.lng);
     setScore((curr) => Math.floor(curr + Math.max(0, 100 - distance * 2)));
   };
 
@@ -188,6 +178,7 @@ export default function GameController() {
 
   const submitScore = async () => {
     if (!nameInput.current.value) return;
+    closeModal();
     const response = await fetch("/api/v1/scores", {
       method: "POST",
       headers: {
@@ -198,7 +189,6 @@ export default function GameController() {
     if (response.msg) {
       alert(response.msg);
     } else {
-      closeModal();
       fetchScores();
     }
   };
@@ -212,57 +202,83 @@ export default function GameController() {
     setShowModal(true);
   };
 
+  const openInstructions = () => {
+    setShowInstructions(true);
+  };
+
+  const closeInstructions = () => {
+    setShowInstructions(false);
+  };
+
   useEffect(() => {
     fetchScores(leaderBoardStep);
-    console.log("fetch");
   }, [leaderBoardStep]);
 
   const changeLBStep = (step) => {
     step = Math.max(0, Math.min(leaderBoardStep + step, LeaderBoardPages - 1));
-    console.log(step);
     setLeaderBoardStep(step);
   };
 
   return (
     <>
-      {showModal ? (
+      {showModal || showInstructions || showWelcomeModal ? (
         <FadedBackground onClick={closeModal}></FadedBackground>
       ) : null}
       <Modal
         onClose={closeModal}
         show={showModal}
-        content={{
-          header: "Game Over",
-          body: `You scored ${score} points.`,
-          elements: (
-            <input
-              type="text"
-              placeholder="Your name"
-              ref={nameInput}
-              maxLength="18"
-            />
-          ),
-        }}
-        actionInfo={{ text: "SUBMIT", action: submitScore }}
+        content={
+          score > 0
+            ? {
+                header: "Game Over",
+                body: `You scored ${score} points.`,
+                elements: <input type="text" placeholder="Your name" ref={nameInput} maxLength="15" />,
+              }
+            : {
+                header: "Game Over",
+                body: `You scored ${score} points.`,
+              }
+        }
+        actionInfo={score > 0 ? { text: "SUBMIT", action: submitScore } : {}}
       />
+
+      <Modal
+        onClose={closeInstructions}
+        show={showInstructions}
+        content={{
+          header: "Instructions",
+          body: "Your goal is to pin the requested location on the map each round. The closer you are, the higher the score.\nIf the distance between your pin and the target is more than 50KM you get no points.\nGame has five rounds. Do your best, Good luck!",
+        }}
+      />
+      {/* //Remove this for heroku vesion */}
+      <Modal
+        onClose={() => setShowWelcomeModal(false)}
+        show={showWelcomeModal}
+        content={{
+          header: `Welcome ${isUserMalicious ? "Evil" : "Kind"} User`,
+          elements: <img src={isUserMalicious ? MaliciousUser : KindUser} width={180} height={100} />,
+        }}
+      />
+
       <InfoBox>
-        <h1>
+        <h1 style={{ marginBottom: "10px" }}>
           <FaGlobeAmericas style={{ fontSize: "1.5em", paddingRight: "1vw" }} />
-          Geography Shalosh Yehidot Finals{" "}
+          Israel Map Game{" "}
         </h1>
+        <span>How well do YOU know our country?</span>
         <h3>{`Level ${level}`}</h3>
         <Row>
           <MiniTitles>Find:</MiniTitles>{" "}
-          {`${currObjective.MGLSDE_L_4.slice(
-            0,
-            1
-          )}${currObjective.MGLSDE_L_4.slice(1).toLowerCase()}`}
+          {`${currObjective.MGLSDE_L_4.slice(0, 1)}${currObjective.MGLSDE_L_4.slice(1).toLowerCase()}`}
         </Row>
         <Row>
           <MiniTitles>Current score:</MiniTitles>
           {" " + score}
         </Row>
         <Button onClick={newGame}>New Game</Button>
+        <Button onClick={openInstructions} style={{ marginLeft: "10px" }}>
+          Instructions
+        </Button>
       </InfoBox>
       <MapContainer
         currObjective={currObjective}
@@ -273,9 +289,7 @@ export default function GameController() {
         setBreak={setBreak}
         pinMarker={pinMarker}
       />
-      <h1 style={{ textAlign: "center", textDecoration: "underline" }}>
-        LEADERS BOARD
-      </h1>
+      <h1 style={{ textAlign: "center", textDecoration: "underline" }}>LEADERS BOARD</h1>
       <div
         style={{
           display: "flex",
@@ -302,19 +316,11 @@ export default function GameController() {
             let sliceOfBoard = leaderBoard.slice(index * 10, (index + 1) * 10);
             if (sliceOfBoard.length < 10) {
               let filledSlice = new Array(10);
-              filledSlice
-                .fill({})
-                .splice(0, sliceOfBoard.length, ...sliceOfBoard);
+              filledSlice.fill({}).splice(0, sliceOfBoard.length, ...sliceOfBoard);
               sliceOfBoard = filledSlice;
             }
 
-            return (
-              <LeaderBoard
-                scores={sliceOfBoard}
-                prefix={index}
-                pageNumber={leaderBoardStep}
-              />
-            );
+            return <LeaderBoard scores={sliceOfBoard} prefix={index} pageNumber={leaderBoardStep} />;
           })}
         </LeaderBoardsSection>
       ) : (
@@ -331,10 +337,7 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
   let dLon = deg2rad(lon2 - lon1);
   let a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(deg2rad(lat1)) *
-      Math.cos(deg2rad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
   let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   let d = R * c; // Distance in km
   return d;
