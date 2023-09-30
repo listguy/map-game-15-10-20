@@ -1,4 +1,6 @@
-# map-game-15-10-20
-A map game i'm creating to learn how to work with google maps API.
+# Israel Map Game 
+ **How well do YOU know our country?**
+ 
+I have created this game to experience with Google Maps API.
 
-First version is up on heroku! [click to play](https://map-game-nitzo.herokuapp.com/)
+The live version is up on Render! [click to play](https://map-game-ho3r.onrender.com)
